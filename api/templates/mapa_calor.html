@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mapa de Calor de Robos</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 600px;"></div>
+    
+    <script>
+        var map = L.map('map').setView([4.142, -73.626], 13); // Coordenadas iniciales de Villavicencio
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        var heat = L.heatLayer([
+            // Agregar coordenadas desde el backend
+            [4.142, -73.626, 0.5],  // Latitud, Longitud, Intensidad del punto
+            [4.143, -73.627, 0.6],
+            // Coordenadas dinámicas obtenidas desde el backend
+        ], {radius: 25}).addTo(map);
+    </script>
+</body>
+</html>

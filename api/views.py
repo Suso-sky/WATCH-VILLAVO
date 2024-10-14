@@ -1,6 +1,7 @@
 from rest_framework import generics
 from .models import Robo, Usuario
 from .serializers import RoboSerializer, UsuarioSerializer
+from django.shortcuts import render
 
 class RoboListCreateView(generics.ListCreateAPIView):
     queryset = Robo.objects.all()
@@ -13,3 +14,6 @@ class RoboDetailView(generics.RetrieveUpdateDestroyAPIView):
 class UsuarioListView(generics.ListAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
+
+def mapa_calor(request):
+    return render(request, 'mapa_calor.html')

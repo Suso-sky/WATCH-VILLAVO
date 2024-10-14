@@ -49,3 +49,9 @@ class Robo(models.Model):
 
     def __str__(self):
         return f"{self.categoria} - {self.fecha_hora}"
+    
+class Tweet(models.Model):
+    tweet_text = models.TextField()
+    created_at = models.DateTimeField()
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
