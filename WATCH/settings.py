@@ -80,8 +80,8 @@ DATABASES = {
      'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'watch_villavo',
-        'USER': 'django',
-        'PASSWORD': 'django',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '5432',     
     }

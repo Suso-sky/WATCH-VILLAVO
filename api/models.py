@@ -26,6 +26,7 @@ class UsuarioManager(BaseUserManager):
         return user
 
 class Usuario(AbstractBaseUser):
+    id = models.BigAutoField(primary_key=True)
     email = models.EmailField(unique=True)
     nombre = models.CharField(max_length=100)
     rol = models.CharField(max_length=20, choices=Rol.choices, default=Rol.CIVIL)
@@ -51,7 +52,23 @@ class Robo(models.Model):
         return f"{self.categoria} - {self.fecha_hora}"
     
 class Tweet(models.Model):
+    id = models.BigAutoField(primary_key=True)
     tweet_text = models.TextField()
     created_at = models.DateTimeField()
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
+
+class RoboMedellin(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    fecha_hecho = models.DateTimeField()
+    latitud = models.FloatField()
+    longitud = models.FloatField()
+    sexo = models.CharField(max_length=10)
+    edad = models.IntegerField()
+    medio_transporte = models.CharField(max_length=50)
+    modalidad = models.CharField(max_length=100)
+    nombre_barrio = models.CharField(max_length=100)
+    codigo_comuna = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.modalidad} en {self.nombre_barrio} ({self.fecha_hecho})"

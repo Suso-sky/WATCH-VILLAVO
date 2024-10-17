@@ -1,27 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Mapa de Calor de Robos</title>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <title>Mapa de Robos en Medellín</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <style>
+    
+        body {
+            font-family: 'Verdana', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: #004c8b; /* Azul alcaldía */
+            padding: 15px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 0 20px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        /* Container for main content */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #005c29; 
+            margin-bottom: 30px;
+        }
+
+        .filter-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.1em;
+            margin-right: 10px;
+            color: #e63946;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #004c8b;
+            border-radius: 8px;
+            margin-right: 10px;
+            background-color: #f0f8ff;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            background-color: #e63946; 
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #d62828;
+        }
+
+        /* Map Styles */
+        #mapid {
+            height: 600px;
+            width: 100%; /* Ajusta el ancho al 100% del contenedor */
+            max-width: 100%; /* Evita que se salga del contenedor */
+            border: 3px solid #004c8b; /* Azul alcaldía */
+            border-radius: 10px;
+            margin-top: 20px;
+            box-sizing: border-box; /* Asegura que los bordes no afecten el tamaño del mapa */
+        }
+
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #004c8b;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: #f9f9f9;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <div id="map" style="width: 100%; height: 600px;"></div>
-    
-    <script>
-        var map = L.map('map').setView([4.142, -73.626], 13); // Coordenadas iniciales de Villavicencio
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="#">Inicio</a>
+        <a href="#">Estadísticas</a>
+        <a href="#">Reporte de Robos</a>
+        <a href="#">Contacto</a>
+    </div>
 
-        var heat = L.heatLayer([
-            // Agregar coordenadas desde el backend
-            [4.142, -73.626, 0.5],  // Latitud, Longitud, Intensidad del punto
-            [4.143, -73.627, 0.6],
-            // Coordenadas dinámicas obtenidas desde el backend
-        ], {radius: 25}).addTo(map);
-    </script>
+    <div class="container">
+        <h1>Mapa de Calor de Robos en Medellín</h1>
+
+        <form id="filtros-form">
+            <label for="filtro_tiempo">Filtrar por tiempo:</label>
+            <select id="filtro_tiempo" name="filtro">
+                <option value="1">Último año</option>
+                <option value="2">Últimos 2 años</option>
+                <option value="5">Últimos 5 años</option>
+            </select>
+        
+            <label for="filtro_sexo">Sexo:</label>
+            <select id="filtro_sexo" name="sexo">
+                <option value="">Cualquiera</option>
+            </select>
+        
+            <label for="filtro_medio_transporte">Medio de Transporte:</label>
+            <select id="filtro_medio_transporte" name="medio_transporte">
+                <option value="">Cualquiera</option>
+            </select>
+        
+            <label for="filtro_modalidad">Modalidad:</label>
+            <select id="filtro_modalidad" name="modalidad">
+                <option value="">Cualquiera</option>
+            </select>
+        
+            <button type="submit">Aplicar Filtros</button>
+        </form>
+        
+        <div id="mapa">
+            {{ mapa_html|safe }}
+        </div>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Función para cargar las opciones de filtros
+                function cargarOpcionesFiltros() {
+                    fetch('http://127.0.0.1:8000/api/obtener_opciones_filtros/')
+                        .then(response => response.json())
+                        .then(data => {
+                            // Llenar el select de sexo
+                            const sexoSelect = document.getElementById('filtro_sexo');
+                            data.sexo.forEach(opcion => {
+                                const optionElement = document.createElement('option');
+                                optionElement.value = opcion;
+                                optionElement.textContent = opcion || 'Sin dato';
+                                sexoSelect.appendChild(optionElement);
+                            });
+        
+                            // Llenar el select de medio de transporte
+                            const medioTransporteSelect = document.getElementById('filtro_medio_transporte');
+                            data.medio_transporte.forEach(opcion => {
+                                const optionElement = document.createElement('option');
+                                optionElement.value = opcion;
+                                optionElement.textContent = opcion || 'Sin dato';
+                                medioTransporteSelect.appendChild(optionElement);
+                            });
+        
+                            // Llenar el select de modalidad
+                            const modalidadSelect = document.getElementById('filtro_modalidad');
+                            data.modalidad.forEach(opcion => {
+                                const optionElement = document.createElement('option');
+                                optionElement.value = opcion;
+                                optionElement.textContent = opcion || 'Sin dato';
+                                modalidadSelect.appendChild(optionElement);
+                            });
+                        })
+                        .catch(error => console.error('Error al cargar opciones de filtros:', error));
+                }
+        
+                // Llamar a la función para cargar las opciones al cargar la página
+                cargarOpcionesFiltros();
+        
+                // Manejar el envío del formulario
+                document.getElementById('filtros-form').addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const form = event.target;
+                    const params = new URLSearchParams(new FormData(form)).toString();
+                    window.location.href = '?' + params;
+                });
+            });
+        </script>
+
+        <a href="{% url 'descargar_mapa' %}?filtro={{ filtro }}" class="btn btn-primary">Descargar Mapa</a>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Desarrollado por <a href="#">Alcaldía de Villavicencio</a></p>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
 </body>
 </html>
