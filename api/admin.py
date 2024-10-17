@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Robo, Usuario
+from .models import RoboMedellin 
 
-admin.site.register(Robo)
-admin.site.register(Usuario)
+admin.site.register(RoboMedellin)
+

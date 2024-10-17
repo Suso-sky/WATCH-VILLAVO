@@ -2,26 +2,14 @@ import folium
 from folium.plugins import HeatMapWithTime
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework import generics
-from .models import Robo, Usuario, RoboMedellin
-from .serializers import RoboSerializer, UsuarioSerializer
+from .models import RoboMedellin
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse
 import pandas as pd
+from telegram import Bot
+import asyncio
 import io
-
-class RoboListCreateView(generics.ListCreateAPIView):
-    queryset = Robo.objects.all()
-    serializer_class = RoboSerializer
-
-class RoboDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Robo.objects.all()
-    serializer_class = RoboSerializer
-
-class UsuarioListView(generics.ListAPIView):
-    queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
 
 def generar_mapa_html(request):
     # Filtros obtenidos del request
@@ -81,7 +69,7 @@ def generar_mapa_html(request):
             radius=12,
             gradient={0.5: 'yellow', 0.8: 'orange', 1: 'red'}
         ).add_to(mapa)
-        
+
     return mapa._repr_html_()
 
 
@@ -124,3 +112,14 @@ def descargar_mapa(request):
     response['Content-Disposition'] = 'attachment; filename="mapa_robos.html"'
 
     return response
+
+def eviar_mensaje_telegram(mensaje): 
+
+    tokenBot = '7284646959:AAHi1FnhmIFe_eZJ5DVgJlDCLVnFQKeqfO4'
+    idChannel = '@WATCH_NOTIFICACIONES_Y_AVISOS'
+
+    async def enviar_mensaje(mensaje):
+        bot = Bot(token=tokenBot)
+        await bot.send_message(chat_id=idChannel, text=mensaje)
+
+    asyncio.run(enviar_mensaje(mensaje))

@@ -40,24 +40,6 @@ class Usuario(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-class Robo(models.Model):
-    categoria = models.CharField(max_length=50, choices=Categoria.choices)
-    descripcion = models.TextField()
-    fecha_hora = models.DateTimeField()
-    latitud = models.DecimalField(max_digits=9, decimal_places=6)
-    longitud = models.DecimalField(max_digits=9, decimal_places=6)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.categoria} - {self.fecha_hora}"
-    
-class Tweet(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    tweet_text = models.TextField()
-    created_at = models.DateTimeField()
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
-
 class RoboMedellin(models.Model):
     id = models.BigAutoField(primary_key=True)
     fecha_hecho = models.DateTimeField()

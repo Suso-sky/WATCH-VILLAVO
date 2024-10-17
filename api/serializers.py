@@ -1,12 +1,7 @@
 from rest_framework import serializers
-from .models import Robo, Usuario
+from .models import RoboMedellin
 
-class RoboSerializer(serializers.ModelSerializer):
+class RoboMedellinSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Robo
+        model = RoboMedellin
         fields = '__all__'
-
-class UsuarioSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Usuario
-        fields = ['id', 'nombre', 'email', 'rol', 'suscripcion']
